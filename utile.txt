@@ -21,3 +21,8 @@ connexion view :
     else:
         return Response("Tu dois entrer ton email et mdp.",
                         status=status.HTTP_404_NOT_FOUND)
+
+
+permission:
+https://testdriven.io/blog/custom-permission-classes-drf/
+https://medium.com/edrolo-engineering/view-based-permissions-in-django-acb725f31e8f  (@permission_classes([permission]) au dessus de la view)

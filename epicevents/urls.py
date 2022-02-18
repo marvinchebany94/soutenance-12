@@ -21,9 +21,10 @@ from rest_framework_simplejwt.views import TokenObtainPairView,\
     TokenRefreshView,\
     TokenVerifyView
 
-from app.views import connexion_view
+from app.views import connexion_view, ClientsView
 
 router = routers.SimpleRouter()
+router.register('clients', ClientsView, basename='clients')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -32,4 +33,15 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name="refreshtoken"),
     path('verifytoken/', TokenVerifyView.as_view(), name="verifytoken"),
     path('login/', connexion_view, name="login"),
+    path('clients/<pk>/', ClientsView.as_view({
+            'get': 'get',
+            'patch': 'partial_update'
+        })),
+    path('api/clients/', ClientsView.as_view({
+        "post": "post",
+    })),
 ]
+
+"""
+
+"""
