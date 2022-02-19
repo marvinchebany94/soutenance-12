@@ -1,3 +1,4 @@
+from django.core.handlers import exception
 from rest_framework import permissions
 
 
@@ -15,12 +16,16 @@ class EquipeDeVente(permissions.BasePermission):
         if request.user.is_authenticated:
             return True
 
-        if request.user.equipe == "vente":
-            return True
+        if request.user.has_perm('support_permissions'):
+            return False
+
+        if view.action == 'create' and \
+           request.user.has_perm('support_permissions'):
+            return False
 
     def has_object_permission(self, request, view, obj):
-        if request.user.equipe == "vente":
-            return True
+        if request.user.has_perm('support_permissions'):
+            return False
 
         if request.user == obj.sales_contact:
             return True

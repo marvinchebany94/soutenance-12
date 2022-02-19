@@ -26,3 +26,10 @@ connexion view :
 permission:
 https://testdriven.io/blog/custom-permission-classes-drf/
 https://medium.com/edrolo-engineering/view-based-permissions-in-django-acb725f31e8f  (@permission_classes([permission]) au dessus de la view)
+https://askcodez.com/django-reste-cadre-par-permission-daction.html
+
+datetimeield :
+https://www.geeksforgeeks.org/datetimefield-django-forms/?ref=rp
+
+permissions :
+https://stackoverflow.com/questions/4778685/how-do-i-use-django-groups-and-permissions#:~:text=For%20each%20model%20Django%20will%20create%20permissions%20in,automatically%20creates%20will%20be%20create%2C%20change%2C%20and%20delete.

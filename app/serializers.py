@@ -14,9 +14,9 @@ class ClientsSerializers(ModelSerializer):
         fields = '__all__'
 
 
-class ContactsSerializers(ModelSerializer):
+class ContratsSerializers(ModelSerializer):
     class Meta:
-        model = models.Contacts
+        model = models.Contrats
         fields = '__all__'
 
 

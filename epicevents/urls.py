@@ -21,10 +21,11 @@ from rest_framework_simplejwt.views import TokenObtainPairView,\
     TokenRefreshView,\
     TokenVerifyView
 
-from app.views import connexion_view, ClientsView
+from app.views import connexion_view, ClientsView, ContratsView
 
 router = routers.SimpleRouter()
 router.register('clients', ClientsView, basename='clients')
+router.register('contrats', ContratsView, basename='contrat')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -40,6 +41,13 @@ urlpatterns = [
     path('api/clients/', ClientsView.as_view({
         "post": "post",
     })),
+    path('api/contrats/<pk_contrat>/', ContratsView.as_view({
+            'get': 'get'
+        })),
+    path('api/contrats/', ContratsView.as_view({
+            'get': 'get',
+            'post': 'create',
+        })),
 ]
 
 """

@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate
+from django.contrib.auth.decorators import permission_required
 from django.db import IntegrityError
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -9,8 +10,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 # Create your views here.
-from app.serializers import UserSerializers, ClientsSerializers
-from .models import User, Clients
+from app.serializers import UserSerializers, ClientsSerializers, \
+    ContratsSerializers
+from .models import User, Clients, Contrats
 from .permissions import EquipeDeVente
 
 
@@ -116,6 +118,63 @@ données.", status=status.HTTP_404_NOT_FOUND)
 client.", status=status.HTTP_400_BAD_REQUEST)
             else:
                 return Response(serializers.errors)
+
+
+class ContratsView(ModelViewSet):
+    queryset = Contrats.objects.all()
+    serializer_class = ContratsSerializers
+    permission_classes = [EquipeDeVente]
+    authentication_classes = [JWTAuthentication]
+    
+    #url api/contrats/<pk_contrat>/
+    def get(self):
+        """
+            Ajoutez une url pour voir tous les contrats d'un client
+            api/clients/<pk>/contrats/
+        """
+        if self.request.user.equipe == 'gestion':
+
+            return Response("Tu ne peux pas être ici tu es dans l'équipe de \
+gestion.", status=status.HTTP_403_FORBIDDEN)
+        else:
+            if not self.kwargs.get('pk_contrat'):
+                try:
+                    contrats = self.request.filter(
+                        sales_contact=self.request.user)
+                    return contrats
+                except ObjectDoesNotExist:
+                    return Response("Tu n'as aucun contrat pour le moment",
+                                    status=status.HTTP_404_NOT_FOUND)
+            else:
+                pk = self.kwargs.get('pk_contrat')
+                try:
+                    int(pk)
+                except ValueError:
+                    return Response("Tu dois entrer un chiffre.",
+                                    status=status.HTTP_404_NOT_FOUND)
+                contrat = get_object_or_404(Contrats, id=pk,
+                                            sales_contact=self.request.user)
+                return contrat
+
+    def create(self, request, *args, **kwargs):
+        """
+            à voir si un client peut avoir un ou plusieurs contrat
+        """
+        if not request.user.has_sales_permissions():
+            return Response("Tu ne peux pas être ici tu es dans l'équipe de \
+gestion.", status=status.HTTP_403_FORBIDDEN)
+        else:
+            form = self.serializer_class(data=request.data)
+            if form.is_valid():
+                form.validated_data['sales_contact'] = request.user
+                form.save()
+                return Response(form.data)
+            else:
+                return Response(form.errors)
+
+
+
+
 
 
 
