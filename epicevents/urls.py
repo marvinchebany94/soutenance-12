@@ -55,6 +55,9 @@ urlpatterns = [
     path('api/events/', EventsView.as_view({
         'get': 'get'
     })),
+    path('api/events/<pk>/', EventsView.as_view({
+        'patch': 'partial_update'
+    })),
 ]
 
 """

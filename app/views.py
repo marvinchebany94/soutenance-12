@@ -265,22 +265,27 @@ vente.", status=status.HTTP_403_FORBIDDEN)
             return Response("Tu ne peux pas être ici tu es dans l'équipe de \
 vente.", status=status.HTTP_403_FORBIDDEN)
         else:
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            if not verifiy_pk(self.kwargs.get('pk')):
+                return Response("Tu dois entrer l'id de l'event.",
+                                status=status.HTTP_404_NOT_FOUND)
+            else:
+                pk = verifiy_pk(self.kwargs.get('pk'))
+                try:
+                    event = Events.objects.get(id=pk,
+                                               support_contact=request.user)
+                    serializer = EventsSerializers(event, data=request.data,
+                                                   partial=True)
+                    if serializer.is_valid():
+                        try:
+                            serializer.save()
+                            event.date_updated = timezone.now()
+                            event.save()
+                            return Response(serializer.data)
+                        except IntegrityError:
+                            return Response("L'event n'a pas été modifié.",
+                                            status=status.HTTP_400_BAD_REQUEST)
+                    else:
+                        return Response(serializer.errors)
+                except ObjectDoesNotExist:
+                    return Response("Aucun event trouvé avec cet id.",
+                                    status=status.HTTP_404_NOT_FOUND)
