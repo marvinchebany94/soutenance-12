@@ -15,9 +15,9 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 # Create your views here.
 from app.serializers import UserSerializers, ClientsSerializers, \
-    ContratsSerializers
-from .models import User, Clients, Contrats
-from .permissions import EquipeDeVente
+    ContratsSerializers, EventsSerializers
+from .models import User, Clients, Contrats, Events
+from .permissions import EquipeDeVente, EquipeDeGestion
 from .my_own_fonctions import verifiy_pk
 
 
@@ -207,32 +207,71 @@ gestion.", status=status.HTTP_403_FORBIDDEN)
                 else:
                     return Response(serializer.errors)
 
-        """
-        if not self.kwargs.get('pk_contrats'):
-            return Response("Tu dois entrer un chiffre.",
-                            status=status.HTTP_404_NOT_FOUND)
-        else:
-            pk = self.kwargs.get('pk')
-            try:
-                int(pk)
-            except ValueError:
-                return Response("Tu dois entrer un chiffre.",
-                                status=status.HTTP_404_NOT_FOUND)
-            client = get_object_or_404(Clients, id=pk,
-                                       sales_contact=request.user)
-            serializers = ClientsSerializers(client, data=request.data,
-                                             partial=True)
-            if serializers.is_valid():
-                try:
-                    serializers.save()
-                    return Response(serializers.data)
-                except IntegrityError:
-                    return Response("erreur pendant l'enregistrement du \
-        client.", status=status.HTTP_400_BAD_REQUEST)
-            else:
-                return Response(serializers.errors)
 
-"""
+class EventsView(ModelViewSet):
+    queryset = Events.objects.all()
+    serializer_class = EventsSerializers
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [EquipeDeGestion]
+
+    def create(self, request, *args, **kwargs):
+        """
+            url : POST api/clients/<pk>/events/
+        """
+        if not request.user.has_sales_permissions():
+            return Response("Tu ne peux pas être ici tu es dans l'équipe de \
+gestion.", status=status.HTTP_403_FORBIDDEN)
+        else:
+            if not verifiy_pk(self.kwargs.get('pk')):
+                return Response("Tu dois entrer l'idée du client. \
+'api/clients/id/events/'", status=status.HTTP_404_NOT_FOUND)
+            else:
+                pk = verifiy_pk(self.kwargs.get('pk'))
+                serializer = EventsSerializers(data=request.data)
+                if serializer.is_valid():
+                    support_contact =\
+                        serializer.validated_data['support_contact']
+                    try:
+                        User.objects.get(
+                            id=support_contact.id, equipe="gestion")
+                    except ObjectDoesNotExist:
+                        return Response("La personne n'existe pas ou ne fait \
+    pas partie de l'équipe de gestion.", status=status.HTTP_404_NOT_FOUND)
+                    try:
+                        client = Clients.objects.get(id=pk)
+                    except ObjectDoesNotExist:
+                        return Response("Le client n'existe pas.",
+                                        status=status.HTTP_404_NOT_FOUND)
+                    try:
+                        serializer.validated_data['client_associe'] = client
+                        serializer.save()
+                        return Response(serializer.data)
+                    except IntegrityError:
+                        return Response("Erreur pendant la sauvegarde de \
+l'event.", status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    return Response(serializer.errors)
+
+    def get(self, request, *args, **kwargs):
+        if self.request.user.has_sales_permissions():
+            return Response("Tu ne peux pas être ici tu es dans l'équipe de \
+vente.", status=status.HTTP_403_FORBIDDEN)
+        else:
+            return Response(self.queryset.filter(
+                support_contact=request.user).values())
+
+    def partial_update(self, request, *args, **kwargs):
+        if request.user.has_sales_permissions():
+            return Response("Tu ne peux pas être ici tu es dans l'équipe de \
+vente.", status=status.HTTP_403_FORBIDDEN)
+        else:
+
+
+
+
+
+
+
 
 
 

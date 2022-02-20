@@ -55,9 +55,9 @@ class Contrats(models.Model):
 
 class Events(models.Model):
     client_associe = models.ForeignKey(Clients, on_delete=models.CASCADE,
-                                       blank=False)
+                                       blank=False, default="")
     date_created = models.DateTimeField(auto_now_add=True)
-    date_updated = models.DateTimeField(blank=True)
+    date_updated = models.DateTimeField(blank=True, null=True)
     support_contact = models.ForeignKey(User, on_delete=models.CASCADE,
                                         blank=False)
     #event_status = models.ForeignKey(Contacts, on_delete=models.CASCADE,

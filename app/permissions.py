@@ -19,10 +19,6 @@ class EquipeDeVente(permissions.BasePermission):
         if request.user.has_perm('support_permissions'):
             return False
 
-        if view.action == 'create' and \
-           request.user.has_perm('support_permissions'):
-            return False
-
     def has_object_permission(self, request, view, obj):
         if request.user.has_perm('support_permissions'):
             return False
@@ -41,6 +37,9 @@ class EquipeDeGestion(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.user.is_authenticated:
             return True
+
+        if request.user.has_perm('sales_permissions'):
+            return False
 
     def has_object_permission(self, request, view, obj):
         if request.user.equipe == "gestion":

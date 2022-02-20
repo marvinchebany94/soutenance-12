@@ -37,3 +37,9 @@ https://stackoverflow.com/questions/4778685/how-do-i-use-django-groups-and-permi
 pour les dates d'update :
 utiliser timezone.now()
 https://stackoverflow.com/questions/18622007/runtimewarning-datetimefield-received-a-naive-datetime
+
+pagination:
+https://stackoverflow.com/questions/31785966/django-rest-framework-turn-on-pagination-on-a-viewset-like-modelviewset-pagina
+
+methode de ModelViewSet:
+https://www.cdrf.co/3.1/rest_framework.viewsets/ModelViewSet.html

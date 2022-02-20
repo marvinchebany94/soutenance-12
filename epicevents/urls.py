@@ -21,7 +21,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView,\
     TokenRefreshView,\
     TokenVerifyView
 
-from app.views import connexion_view, ClientsView, ContratsView
+from app.views import connexion_view, ClientsView, ContratsView, EventsView
 
 router = routers.SimpleRouter()
 router.register('clients', ClientsView, basename='clients')
@@ -49,6 +49,12 @@ urlpatterns = [
             'get': 'get',
             'post': 'create',
         })),
+    path('api/clients/<pk>/events/', EventsView.as_view({
+        'post': 'create'
+    })),
+    path('api/events/', EventsView.as_view({
+        'get': 'get'
+    })),
 ]
 
 """
