@@ -33,3 +33,7 @@ https://www.geeksforgeeks.org/datetimefield-django-forms/?ref=rp
 
 permissions :
 https://stackoverflow.com/questions/4778685/how-do-i-use-django-groups-and-permissions#:~:text=For%20each%20model%20Django%20will%20create%20permissions%20in,automatically%20creates%20will%20be%20create%2C%20change%2C%20and%20delete.
+
+pour les dates d'update :
+utiliser timezone.now()
+https://stackoverflow.com/questions/18622007/runtimewarning-datetimefield-received-a-naive-datetime

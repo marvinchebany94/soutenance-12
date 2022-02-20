@@ -42,7 +42,8 @@ urlpatterns = [
         "post": "post",
     })),
     path('api/contrats/<pk_contrat>/', ContratsView.as_view({
-            'get': 'get'
+            'get': 'get',
+            'patch': 'partial_update',
         })),
     path('api/contrats/', ContratsView.as_view({
             'get': 'get',

@@ -1,6 +1,10 @@
+from datetime import datetime
+
+import pytz
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import permission_required
 from django.db import IntegrityError
+from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
@@ -14,6 +18,7 @@ from app.serializers import UserSerializers, ClientsSerializers, \
     ContratsSerializers
 from .models import User, Clients, Contrats
 from .permissions import EquipeDeVente
+from .my_own_fonctions import verifiy_pk
 
 
 @api_view(['POST'])
@@ -112,6 +117,8 @@ données.", status=status.HTTP_404_NOT_FOUND)
             if serializers.is_valid():
                 try:
                     serializers.save()
+                    client.date_updated = timezone.now()
+                    client.save()
                     return Response(serializers.data)
                 except IntegrityError:
                     return Response("erreur pendant l'enregistrement du \
@@ -139,7 +146,7 @@ gestion.", status=status.HTTP_403_FORBIDDEN)
         else:
             if not self.kwargs.get('pk_contrat'):
                 try:
-                    contrats = self.request.filter(
+                    contrats = self.queryset.filter(
                         sales_contact=self.request.user)
                     return contrats
                 except ObjectDoesNotExist:
@@ -172,7 +179,60 @@ gestion.", status=status.HTTP_403_FORBIDDEN)
             else:
                 return Response(form.errors)
 
+    def partial_update(self, request, *args, **kwargs):
+        if not request.user.has_sales_permissions():
+            return Response("Tu ne peux pas être ici tu es dans l'équipe de \
+gestion.", status=status.HTTP_403_FORBIDDEN)
+        else:
+            if not verifiy_pk(self.kwargs.get('pk')):
+                return Response("Tu dois entrer l'id du contrat.",
+                                status=status.HTTP_404_NOT_FOUND)
+            else:
+                pk = verifiy_pk(self.kwargs.get('pk'))
+                contrat = get_object_or_404(Contrats,
+                                            id=pk,
+                                            sales_contact=request.user)
+                serializer = ContratsSerializers(contrat,
+                                                 data=request.data,
+                                                 partial=True)
+                if serializer.is_valid():
+                    try:
+                        serializer.save()
+                        contrat.date_updated = timezone.now()
+                        contrat.save()
+                        return Response(serializer.data)
+                    except IntegrityError:
+                        return Response("Erreur pendant la modification.",
+                                        status=status.HTTP_404_NOT_FOUND)
+                else:
+                    return Response(serializer.errors)
 
+        """
+        if not self.kwargs.get('pk_contrats'):
+            return Response("Tu dois entrer un chiffre.",
+                            status=status.HTTP_404_NOT_FOUND)
+        else:
+            pk = self.kwargs.get('pk')
+            try:
+                int(pk)
+            except ValueError:
+                return Response("Tu dois entrer un chiffre.",
+                                status=status.HTTP_404_NOT_FOUND)
+            client = get_object_or_404(Clients, id=pk,
+                                       sales_contact=request.user)
+            serializers = ClientsSerializers(client, data=request.data,
+                                             partial=True)
+            if serializers.is_valid():
+                try:
+                    serializers.save()
+                    return Response(serializers.data)
+                except IntegrityError:
+                    return Response("erreur pendant l'enregistrement du \
+        client.", status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response(serializers.errors)
+
+"""
 
 
 
