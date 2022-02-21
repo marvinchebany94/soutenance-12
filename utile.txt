@@ -43,3 +43,10 @@ https://stackoverflow.com/questions/31785966/django-rest-framework-turn-on-pagin
 
 methode de ModelViewSet:
 https://www.cdrf.co/3.1/rest_framework.viewsets/ModelViewSet.html
+
+?key= 
+https://stackoverflow.com/questions/28274825/key-based-access-for-the-django-rest-framework
+key = request.GET.get('key')
+
+message d'erreur dans un get_queryset()
+https://stackoverflow.com/questions/49570077/contentnotrenderederror-the-response-content-must-be-rendered-before-it-can-be

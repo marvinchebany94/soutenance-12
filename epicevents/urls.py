@@ -34,19 +34,18 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name="refreshtoken"),
     path('verifytoken/', TokenVerifyView.as_view(), name="verifytoken"),
     path('login/', connexion_view, name="login"),
-    path('clients/<pk>/', ClientsView.as_view({
-            'get': 'get',
+    path('api/clients/<pk>/', ClientsView.as_view({
             'patch': 'partial_update'
         })),
     path('api/clients/', ClientsView.as_view({
-        "post": "post",
+        "post": "create",
+        "get": "get"
     })),
-    path('api/contrats/<pk_contrat>/', ContratsView.as_view({
-            'get': 'get',
+    path('api/contrats/<pk>/', ContratsView.as_view({
             'patch': 'partial_update',
         })),
     path('api/contrats/', ContratsView.as_view({
-            'get': 'get',
+            'get': 'get_queryset',
             'post': 'create',
         })),
     path('api/clients/<pk>/events/', EventsView.as_view({

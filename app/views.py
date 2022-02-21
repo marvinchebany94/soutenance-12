@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import permission_required
 from django.db import IntegrityError
 from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -53,26 +54,8 @@ class ClientsView(ModelViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get(self):
-        if self.kwargs.get('pk'):
-            pk = self.kwargs.get('pk')
-            try:
-                int(pk)
-            except ValueError:
-                return Response('Tu dois entrer un chiffre.',
-                                status=status.HTTP_404_NOT_FOUND)
-            try:
-                Clients.objects.get(id=int(pk))
-                print(Clients.objects.get(id=pk).email)
-            except ObjectDoesNotExist:
-                return Response("Le client n'existe pas.",
-                                status=status.HTTP_404_NOT_FOUND)
-            print('probleme ici')
-            return self.queryset.filter(id=pk).values()
-
-        else:
-            return Response("Tu dois entrer un chiffre afin de trouver \
-le client", status=status.HTTP_404_NOT_FOUND)
+    def get_queryset(self):
+        return self.queryset.filter(sales_contact=self.request.user)
 
     def create(self, request, *args, **kwargs):
         if request.user.equipe == 'gestion':
@@ -132,36 +115,17 @@ class ContratsView(ModelViewSet):
     serializer_class = ContratsSerializers
     permission_classes = [EquipeDeVente]
     authentication_classes = [JWTAuthentication]
-    
-    #url api/contrats/<pk_contrat>/
-    def get(self):
+
+    def get_queryset(self):
         """
             Ajoutez une url pour voir tous les contrats d'un client
             api/clients/<pk>/contrats/
         """
-        if self.request.user.equipe == 'gestion':
+        if not self.queryset.filter(sales_contact=self.request.user):
+            raise ValidationError({"EmptyQueryset":
+                                       ["Aucun contrat n'a été trouvé"]})
 
-            return Response("Tu ne peux pas être ici tu es dans l'équipe de \
-gestion.", status=status.HTTP_403_FORBIDDEN)
-        else:
-            if not self.kwargs.get('pk_contrat'):
-                try:
-                    contrats = self.queryset.filter(
-                        sales_contact=self.request.user)
-                    return contrats
-                except ObjectDoesNotExist:
-                    return Response("Tu n'as aucun contrat pour le moment",
-                                    status=status.HTTP_404_NOT_FOUND)
-            else:
-                pk = self.kwargs.get('pk_contrat')
-                try:
-                    int(pk)
-                except ValueError:
-                    return Response("Tu dois entrer un chiffre.",
-                                    status=status.HTTP_404_NOT_FOUND)
-                contrat = get_object_or_404(Contrats, id=pk,
-                                            sales_contact=self.request.user)
-                return contrat
+        return self.queryset.filter(sales_contact=self.request.user)
 
     def create(self, request, *args, **kwargs):
         """
