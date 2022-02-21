@@ -43,6 +43,7 @@ urlpatterns = [
     })),
     path('api/contrats/<pk>/', ContratsView.as_view({
             'patch': 'partial_update',
+            'get': 'get_queryset'
         })),
     path('api/contrats/', ContratsView.as_view({
             'get': 'get_queryset',

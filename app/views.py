@@ -55,7 +55,39 @@ class ClientsView(ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return self.queryset.filter(sales_contact=self.request.user)
+        client_name = self.request.GET.get('name')
+        client_email = self.request.GET.get('email')
+        if client_name:
+            queryset = self.queryset.filter(last_name=client_name,
+                                            sales_contact=self.request.user)
+            if not queryset:
+                raise ValidationError({"Error":
+                                      ["Aucun client n'a été trouvé avec ce \
+nom."]})
+            else:
+                return queryset
+        elif client_email:
+            queryset = self.queryset.filter(email=client_email,
+                                            sales_contact=self.request.user)
+            if not queryset:
+                raise ValidationError({"Error":
+                                      ["Aucun client n'a été trouvé avec cet \
+email."]})
+            else:
+                return queryset
+        else:
+            if verifiy_pk(self.kwargs.get('pk')):
+                pk = verifiy_pk(self.kwargs.get('pk'))
+                client = get_object_or_404(Clients, id=pk,
+                                           sales_contact=self.request.user)
+                return client
+            else:
+                queryset = self.queryset.filter(sales_contact=self.request.user)
+                if not queryset:
+                    raise ValidationError({"EmptyQueryset":
+                                          ["Vous n'avez aucun client."]})
+                else:
+                    return self.queryset.filter(sales_contact=self.request.user)
 
     def create(self, request, *args, **kwargs):
         if request.user.equipe == 'gestion':
@@ -63,9 +95,9 @@ class ClientsView(ModelViewSet):
 gestion.", status=status.HTTP_403_FORBIDDEN)
         serializers = ClientsSerializers(data=request.data)
         if serializers.is_valid():
-            sales_contact = serializers.data['sales_contact']
+            sales_contact = serializers.validated_data['sales_contact']
             try:
-                User.objects.get(email=sales_contact, equipe="vente")
+                User.objects.get(id=sales_contact.id, equipe="vente")
             except ObjectDoesNotExist:
                 return Response("L'email ne correspond pas à l'email d'un \
 membre de l'équipe de vente.",
