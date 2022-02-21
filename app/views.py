@@ -14,12 +14,13 @@ from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-# Create your views here.
 from app.serializers import UserSerializers, ClientsSerializers, \
     ContratsSerializers, EventsSerializers
 from .models import User, Clients, Contrats, Events
 from .permissions import EquipeDeVente, EquipeDeGestion
 from .my_own_fonctions import verifiy_pk
+
+# Create your views here.
 
 
 @api_view(['POST'])
@@ -153,11 +154,54 @@ class ContratsView(ModelViewSet):
             Ajoutez une url pour voir tous les contrats d'un client
             api/clients/<pk>/contrats/
         """
-        if not self.queryset.filter(sales_contact=self.request.user):
-            raise ValidationError({"EmptyQueryset":
-                                       ["Aucun contrat n'a été trouvé"]})
-
-        return self.queryset.filter(sales_contact=self.request.user)
+        client_name = self.request.GET.get('name')
+        client_email = self.request.GET.get('email')
+        date_contrat = self.request.GET.get('date')
+        montant_contrat = self.request.GET.get('montant')
+        if client_name:
+            queryset = self.queryset.filter(
+                client_associe__last_name=client_name,
+                sales_contact=self.request.user)
+            if not queryset:
+                raise ValidationError({"ContratNotFoud":
+                                       ["Aucun contrat trouvé avec ce nom."]})
+            else:
+                return queryset
+        elif client_email:
+            queryset = self.queryset.filter(
+                client_associe__email=client_email,
+                sales_contact=self.request.user)
+            if not queryset:
+                raise ValidationError({"ContratNotFoud":
+                                           ["Aucun contrat trouvé avec cet \
+email."]})
+            else:
+                return queryset
+        elif date_contrat:
+            queryset = self.queryset.filter(
+                client_associe__payement_due=date_contrat,
+                sales_contact=self.request.user)
+            if not queryset:
+                raise ValidationError({"ContratNotFoud":
+                                           ["Aucun contrat trouvé avec cette \
+date."]})
+            else:
+                return queryset
+        elif montant_contrat:
+            queryset = self.queryset.filter(
+                client_associe__amout=montant_contrat,
+                sales_contact=self.request.user)
+            if not queryset:
+                raise ValidationError({"ContratNotFoud":
+                                           ["Aucun contrat trouvé avec ce \
+montant."]})
+            else:
+                return queryset
+        else:
+            if not self.queryset.filter(sales_contact=self.request.user):
+                raise ValidationError({"EmptyQueryset":
+                                      ["Aucun contrat n'a été trouvé"]})
+            return self.queryset.filter(sales_contact=self.request.user)
 
     def create(self, request, *args, **kwargs):
         """
