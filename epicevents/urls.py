@@ -26,6 +26,7 @@ from app.views import connexion_view, ClientsView, ContratsView, EventsView
 router = routers.SimpleRouter()
 router.register('clients', ClientsView, basename='clients')
 router.register('contrats', ContratsView, basename='contrat')
+router.register('events', EventsView, basename='events')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -39,7 +40,7 @@ urlpatterns = [
         })),
     path('api/clients/', ClientsView.as_view({
         "post": "create",
-        "get": "get"
+        "get": "get_queryset"
     })),
     path('api/contrats/<pk>/', ContratsView.as_view({
             'patch': 'partial_update',
@@ -53,10 +54,10 @@ urlpatterns = [
         'post': 'create'
     })),
     path('api/events/', EventsView.as_view({
-        'get': 'get'
+        'get': 'get_queryset'
     })),
     path('api/events/<pk>/', EventsView.as_view({
-        'patch': 'partial_update'
+        'patch': 'partial_update',
     })),
 ]
 

@@ -77,6 +77,7 @@ email."]})
             else:
                 return queryset
         else:
+            """
             if verifiy_pk(self.kwargs.get('pk')):
                 pk = verifiy_pk(self.kwargs.get('pk'))
                 client = get_object_or_404(Clients, id=pk,
@@ -87,8 +88,8 @@ email."]})
                 if not queryset:
                     raise ValidationError({"EmptyQueryset":
                                           ["Vous n'avez aucun client."]})
-                else:
-                    return self.queryset.filter(sales_contact=self.request.user)
+                else:"""
+            return self.queryset.filter(sales_contact=self.request.user)
 
     def create(self, request, *args, **kwargs):
         if request.user.equipe == 'gestion':
@@ -173,27 +174,27 @@ class ContratsView(ModelViewSet):
                 sales_contact=self.request.user)
             if not queryset:
                 raise ValidationError({"ContratNotFoud":
-                                           ["Aucun contrat trouvé avec cet \
+                                      ["Aucun contrat trouvé avec cet \
 email."]})
             else:
                 return queryset
         elif date_contrat:
             queryset = self.queryset.filter(
-                client_associe__payement_due=date_contrat,
+                payement_due=date_contrat,
                 sales_contact=self.request.user)
             if not queryset:
                 raise ValidationError({"ContratNotFoud":
-                                           ["Aucun contrat trouvé avec cette \
+                                      ["Aucun contrat trouvé avec cette \
 date."]})
             else:
                 return queryset
         elif montant_contrat:
             queryset = self.queryset.filter(
-                client_associe__amout=montant_contrat,
+                amout=montant_contrat,
                 sales_contact=self.request.user)
             if not queryset:
                 raise ValidationError({"ContratNotFoud":
-                                           ["Aucun contrat trouvé avec ce \
+                                      ["Aucun contrat trouvé avec ce \
 montant."]})
             else:
                 return queryset
@@ -292,13 +293,49 @@ l'event.", status=status.HTTP_400_BAD_REQUEST)
                 else:
                     return Response(serializer.errors)
 
-    def get(self, request, *args, **kwargs):
-        if self.request.user.has_sales_permissions():
-            return Response("Tu ne peux pas être ici tu es dans l'équipe de \
-vente.", status=status.HTTP_403_FORBIDDEN)
+    def get_queryset(self):
+        """
+            Nom du client/email/date evenement
+        """
+        client_name = self.request.GET.get('name')
+        client_email = self.request.GET.get('email')
+        date_event = self.request.GET.get('date')
+        if client_name:
+            queryset = self.queryset.filter(
+                client_associe__last_name=client_name,
+                support_contact=self.request.user)
+            if not queryset:
+                raise ValidationError({"ContratNotFoud":
+                                      ["Aucun contrat trouvé avec ce nom.\
+"]})
+            else:
+                return queryset
+        elif client_email:
+            queryset = self.queryset.filter(
+                client_associe__email=client_email,
+                support_contact=self.request.user)
+            if not queryset:
+                raise ValidationError({"ContratNotFoud":
+                                      ["Aucun contrat trouvé avec cet \
+email."]})
+            else:
+                return queryset
+        elif date_event:
+            queryset = self.queryset.filter(
+                event_date=date_event,
+                support_contact=self.request.user)
+            if not queryset:
+                raise ValidationError({"ContratNotFoud":
+                                      ["Aucun contrat trouvé avec cette \
+date."]})
+            else:
+                return queryset
         else:
-            return Response(self.queryset.filter(
-                support_contact=request.user).values())
+            if not self.queryset.filter(
+                        support_contact=self.request.user):
+                raise ValidationError({"EmptyQueryset":
+                                      ["Aucun event n'a été trouvé"]})
+            return self.queryset.filter(support_contact=self.request.user)
 
     def partial_update(self, request, *args, **kwargs):
         if request.user.has_sales_permissions():
