@@ -50,3 +50,31 @@ key = request.GET.get('key')
 
 message d'erreur dans un get_queryset()
 https://stackoverflow.com/questions/49570077/contentnotrenderederror-the-response-content-must-be-rendered-before-it-can-be
+
+creer un superuser :
+username = models0charfield(max_lentgh=100, blank=True, null=True
+soit dans le cmd manage.py createsuperuser
+ou dans shell
+from app .models import User
+user = User.objects.create_superuser(username, email, password)
+
+admin:
+https://python.doctor/page-django-interface-admin-administration-settings-django-contrib-auth
+https://django-guardian.readthedocs.io/en/stable/userguide/assign.html
+https://stackoverflow.com/questions/3674463/adding-per-object-permissions-to-django-admin
+https://stackoverflow.com/questions/12215751/can-i-make-list-filter-in-django-admin-to-only-show-referenced-foreignkeys 
+
+pour un champ d'un formulaire contenant des users, si l'on souhaite filtrer les users selon leur groupe :
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(EventsAdmin, self).get_form(request, obj, **kwargs)
+        form.base_fields['support_contact'].queryset = User.objects.filter(
+            equipe='gestion')
+        return form
+
+pour rendre un champ readonly seulement pour les user non is_superuser :
+class modeladmin(ModelAdmin):
+    readonly_fields = ('..',)
+    def get_readonly_fields(self, request, obj=None):
+        if request.user.is_superuser:
+            return []
+        return self.readonly_fields

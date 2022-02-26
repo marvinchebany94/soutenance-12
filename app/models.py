@@ -12,7 +12,7 @@ class User(AbstractUser):
             ('sales_permissions', 'sales_permissions'),
             ('support_permissions', 'support_permissions')
         )
-    username = None
+    username = models.CharField(max_length=100, blank=True, null=True)
     email = models.EmailField(max_length=100, blank=False, unique=True)
     password = models.CharField(max_length=254, blank=False)
     EQUIPES = [
