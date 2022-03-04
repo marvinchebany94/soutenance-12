@@ -18,6 +18,7 @@ class ClientsAdmin(ModelAdmin):
 
 @admin.register(Contrats)
 class ContratsAdmin(ModelAdmin):
+
     def get_form(self, request, obj=None, **kwargs):
         form = super(ContratsAdmin, self).get_form(request, obj, **kwargs)
         form.base_fields['sales_contact'].queryset = User.objects.filter(
