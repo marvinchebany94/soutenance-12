@@ -14,4 +14,13 @@ Voir ses événements, modifier ses événements puis voir ses clients.
 Le compte admin se connecte dans l'url /admin, l'admin à accés à toutes les tables, peut créer des comptes utilisateurs, les associer à un groupe, et peut creer/modifier/voir/supprimer les éléments de chaque table.
 Le compte admin est : admin@gmail.com , mot de passe : admin
 
-###
+###ACTIVER L ENVIRONNEMENT
+
+-lancer l'invite de commandes
+-se rendre dans le dossier telecharGé grâce à la commande cd "chemin du dossier"
+-python -m venv env
+-cd env/Scripts
+-activate
+-cd ..
+-cd ..
+-pip install -r requirements.txt
