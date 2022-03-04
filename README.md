@@ -17,10 +17,17 @@ Le compte admin est : admin@gmail.com , mot de passe : admin
 ###ACTIVER L ENVIRONNEMENT
 
 -lancer l'invite de commandes
+
 -se rendre dans le dossier telecharGé grâce à la commande cd "chemin du dossier"
+
 -python -m venv env
+
 -cd env/Scripts
+
 -activate
+
 -cd ..
+
 -cd ..
+
 -pip install -r requirements.txt
